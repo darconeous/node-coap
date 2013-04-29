@@ -35,6 +35,8 @@
 #include <stdlib.h>
 #include "ctype.h"
 
+#define DEBUG_PRINTF printf
+
 #ifndef DEBUG_PRINTF
 #define DEBUG_PRINTF
 #endif

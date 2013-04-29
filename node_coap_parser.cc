@@ -17,12 +17,12 @@ Local<Object> parsePacket_raw(const char* buffer, size_t packet_size) {
 	Local<Object> parsed_packet = Object::New();
 	Local<Object> options = Object::New();
 
-	coap_dump_header(
-		stderr,
-		"",
-		header,
-		packet_size
-	);
+//	coap_dump_header(
+//		stderr,
+//		" >>> ",
+//		header,
+//		packet_size
+//	);
 
 	if(packet_size<4) {
 		ThrowException(Exception::Error(String::New("Packet Too Small")));
@@ -150,7 +150,7 @@ Handle<Value> constructPacket(const Arguments& args) {
 	}
 	Local<Object> parsed_packet = Local<Object>::Cast(args[0]);
 
-	uint8_t buffer[1280];
+	uint8_t buffer[COAP_MAX_MESSAGE_SIZE];
 	struct coap_header_s* header = (struct coap_header_s*)buffer;
 
 	header->version = COAP_VERSION;
@@ -237,22 +237,24 @@ Handle<Value> constructPacket(const Arguments& args) {
 
 	if(parsed_packet->Has(String::NewSymbol("content"))) {
 		*option_ptr++ = 0xFF;
+		len++;
 		Local<Value> content = parsed_packet->Get(String::NewSymbol("content"));
-		len += 1+node::DecodeWrite((char*)option_ptr,sizeof(buffer)-len,content);
+		len += node::DecodeWrite((char*)option_ptr,sizeof(buffer)-len,content);
 	}
-	coap_dump_header(
-		stderr,
-		"*** ",
-		header,
-		len
-	);
+
+//	coap_dump_header(
+//		stderr,
+//		" <<< ",
+//		header,
+//		len
+//	);
 
 	if (!coap_verify_packet((const char*)buffer,len)) {
 		ThrowException(Exception::Error(String::New("Encoding error, bad packet")));
 		return scope.Close(Undefined());
 	}
 
-	ret = node::Encode((const void*)buffer, len,node::BUFFER);
+	ret = node::Encode((const void*)buffer, len);
 
 	return scope.Close(ret);
 }
