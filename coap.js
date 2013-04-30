@@ -29,6 +29,8 @@ var CODE_PUT = exports.CODE_PUT = 3;
 var CODE_DELETE = exports.CODE_DELETE = 4;
 
 var CODE_2_05_CONTENT = exports.CODE_2_05_CONTENT = httpToCOAPCode(205);
+var CODE_4_04_NOT_FOUND = exports.CODE_4_04_NOT_FOUND = httpToCOAPCode(404);
+var CODE_4_05_METHOD_NOT_ALLOWED = exports.CODE_4_05_METHOD_NOT_ALLOWED = httpToCOAPCode(405);
 
 var TT_CON = exports.TT_CON = 0;
 var TT_NON = exports.TT_NON = 1;
@@ -235,7 +237,7 @@ var GenerateMessageHash = function(msgid,addr) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-function Server(requestListener) {
+function Server(requestListener, port) {
 	if (!(this instanceof Server)) return new Server(requestListener);
 	EventEmitter.call(this);
 	var self = this;
@@ -243,15 +245,19 @@ function Server(requestListener) {
 	if (requestListener) {
 		this.addListener('request', requestListener);
 	}
+
+	if (typeof port === 'undefined')
+		port = DEFAULT_PORT
+
 	this.socket = dgram.createSocket('udp6',function(packet,rinfo) {
 		self.handlePacket(packet,rinfo);
 	});
-	this.socket.bind(DEFAULT_PORT);
+	this.socket.bind(port);
 
 	this.recentResponses = {};
 	this.currentConfirmables = {};
 
-	this.lastMsgid = 0;
+	this.lastMsgid = ~~(Math.random()*65535);
 }
 
 util.inherits(Server, EventEmitter);
@@ -329,8 +335,10 @@ Server.prototype.sendRequest = function (msg, cb) {
 	if(msg.tt == TT_CON || codeIsRequest(msg.code)) {
 		if(typeof msg.msgid === 'undefined')
 			msg.msgid = self.nextMsgid();
-		if(typeof msg.token === 'undefined')
-			msg.token = Buffer(self.nextMsgid());
+		if(typeof msg.token === 'undefined') {
+			msg.token = new Buffer(2);
+			msg.token.writeUInt16BE(self.nextMsgid(),0,true);
+		}
 
 		var handler = new OutboundHandler(self,msg,cb);
 	} else {
@@ -346,22 +354,27 @@ Server.prototype.handlePacket = function (packet,from,to,info) {
 	msg.to = to;
 	msg.from = from;
 	msg.info = info;
-//	console.log(" *** Got packet. ");
-//	console.log(msg);
-
-	if(msg.options[OPTION_URI_PATH])
-		msg.path = "/" + msg.options[OPTION_URI_PATH].map(encodeURIComponent).join("/");
-
-	if(msg.options[OPTION_URI_HOST])
-		msg.host = msg.options[OPTION_URI_HOST];
-
-	if(msg.options[OPTION_URI_PORT])
-		msg.port = msg.options[OPTION_URI_PORT];
-
+	console.log(" *** Got packet. ");
+	console.log(msg);
 
 	if(codeIsRequest(msg.code)) {
 		var msgidHash = GenerateMessageHash(msg.msgid,msg.from);
 		var response = this.recentResponses[msgidHash];
+
+		if(msg.options[OPTION_URI_PATH]) {
+			if(Array.isArray(msg.options[OPTION_URI_PATH]))
+				msg.path = "/" + msg.options[OPTION_URI_PATH].map(encodeURIComponent).join("/");
+			else
+				msg.path = "/" + msg.options[OPTION_URI_PATH];
+		} else {
+			msg.path = "/";
+		}
+
+		if(msg.options[OPTION_URI_HOST])
+			msg.host = msg.options[OPTION_URI_HOST];
+
+		if(msg.options[OPTION_URI_PORT])
+			msg.port = msg.options[OPTION_URI_PORT];
 
 		if(response) {
 			response._send();

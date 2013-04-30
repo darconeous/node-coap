@@ -1,20 +1,25 @@
 
 var coap = require('./coap');
-var server = new coap.Server( function (req,res) {
+var app = require('./testrouter').Router();
+
+
+var server = new coap.Server(function (req,res) {
 	console.log("Got request! ");
 	console.log(req);
 
-	process.nextTick(function () {
-		res.code = coap.CODE_2_05_CONTENT;
-		res.content = "Hello world!";
-		res.send(function (err) {
-			if(!err) {
-				console.log("Response sent successfully.");
-			} else {
-				console.log("Error sending response: " + err);
-			}
-		});
-	});
+	app.callbackHandler(req,res);
+});
+
+app.get("/one",function (req,res) {
+	res.code = coap.CODE_2_05_CONTENT;
+	res.content = "ONE!!!";
+	res.send();
+});
+
+app.get("/two",function (req,res) {
+	res.code = coap.CODE_2_05_CONTENT;
+	res.content = "TWO!!!";
+	res.send();
 });
 
 console.log("Server running.");
@@ -22,7 +27,7 @@ console.log("Server running.");
 server.sendRequest({
 	code: coap.CODE_GET,
 	tt: coap.TT_CON,
-	path: "/security/",
+	path: "/.well-known/core/",
 	host: "concord.orion.deepdarc.com"
 }, function(msg, err) {
 	if(!err) {

@@ -14,6 +14,7 @@
 		A613E83816C6B44A00C5711D /* coap.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = coap.js; sourceTree = "<group>"; };
 		A613E83916C6B44A00C5711D /* node_coap_parser.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = node_coap_parser.cc; sourceTree = "<group>"; };
 		A613E83A16C6B44A00C5711D /* test.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = test.js; sourceTree = "<group>"; };
+		A6868112172F6D14001CE621 /* testrouter.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = testrouter.js; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -25,6 +26,7 @@
 				A613E83616C6B44A00C5711D /* coap.c */,
 				A613E83716C6B44A00C5711D /* coap.h */,
 				A613E83816C6B44A00C5711D /* coap.js */,
+				A6868112172F6D14001CE621 /* testrouter.js */,
 				A613E83916C6B44A00C5711D /* node_coap_parser.cc */,
 				A613E83A16C6B44A00C5711D /* test.js */,
 			);
