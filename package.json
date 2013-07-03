@@ -1,0 +1,21 @@
+{
+  "name": "node-coap",
+  "version": "0.0.1",
+  "description": "Implementation of CoAP for Node",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/darconeous/node-coap.git"
+  },
+  "dependencies": { },
+  "devDependencies": { },
+  "scripts": { },
+  "bugs": {
+    "url": "https://github.com/darconeous/node-coap/issues"
+  },
+  "licenses": [
+    {
+      "type": "BSD",
+      "url": "http://www.linfo.org/bsdlicense.html"
+    }
+  ]
+}
