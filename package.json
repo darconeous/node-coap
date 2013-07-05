@@ -7,8 +7,12 @@
     "url": "git://github.com/darconeous/node-coap.git"
   },
   "dependencies": { },
-  "devDependencies": { },
-  "scripts": { },
+  "devDependencies": {
+    "nodeunit": ">=0.8.1"
+  },
+  "scripts": {
+    "test": "nodeunit tests/"
+  },
   "bugs": {
     "url": "https://github.com/darconeous/node-coap/issues"
   },
